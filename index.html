@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Équipes EPS</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --surface3: #2a2f45;
+    --accent: #4f9cf9;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #e8eaf6;
+    --text2: #8b90a8;
+    --text3: #5a5f75;
+    --border: rgba(255,255,255,0.07);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --lvl1: #60a5fa; --lvl2: #34d399; --lvl3: #fbbf24; --lvl4: #fb923c; --lvl5: #f472b6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: linear-gradient(135deg,#1a1d27,#14172a);
+    border-bottom: 1px solid var(--border);
+    padding: 22px 32px 18px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-title { display: flex; align-items: center; gap: 14px; }
+  .app-logo { width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(79,156,249,.35); }
+  .app-title h1 { font-size:26px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff,#8b90a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+  .app-title small { font-size:12px;font-weight:500;color:var(--text3);letter-spacing:2px;text-transform:uppercase;display:block; }
+
+  /* ── BUTTONS ── */
+  .btn { display:inline-flex;align-items:center;gap:7px;border:none;border-radius:var(--radius-sm);padding:11px 18px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s; }
+  .btn:active { transform:scale(.97); }
+  .btn-blue  { background:linear-gradient(135deg,var(--accent),#3b82f6);color:#fff;box-shadow:0 4px 16px rgba(79,156,249,.25); }
+  .btn-purple{ background:linear-gradient(135deg,var(--accent2),#7c3aed);color:#fff;box-shadow:0 4px 20px rgba(167,139,250,.35); }
+  .btn-ghost { background:var(--surface2);border:1px solid var(--border);color:var(--text); }
+  .btn-danger-sm { background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);color:var(--red);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .2s; }
+  .btn-danger-sm:active { background:rgba(248,113,113,.25); }
+  .btn-cancel { flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:13px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s; }
+  .btn-cancel:active { background:var(--surface3); }
+  .btn-confirm { flex:2;background:linear-gradient(135deg,var(--accent),#3b82f6);border:none;color:#fff;border-radius:var(--radius-sm);padding:13px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(79,156,249,.3); }
+  .btn-confirm:active { transform:scale(.98); }
+
+  /* ── HOME ── */
+  .classes-container { padding:32px;flex:1; }
+  .classes-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px; }
+  .class-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden; }
+  .class-card::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:var(--radius) var(--radius) 0 0; }
+  .class-card:active { transform:scale(.98); }
+  .class-card:hover { border-color:rgba(79,156,249,.3);background:var(--surface2); }
+  .class-card-header { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px; }
+  .class-name { font-size:22px;font-weight:700;color:var(--text); }
+  .class-stats { display:flex;gap:16px;flex-wrap:wrap; }
+  .stat-pill { background:var(--surface3);border-radius:20px;padding:5px 12px;font-size:13px;color:var(--text2);font-weight:500; }
+  .stat-pill span { color:var(--accent);font-weight:700; }
+  .class-activities { margin-top:14px;display:flex;gap:8px;flex-wrap:wrap; }
+  .activity-tag { background:rgba(79,156,249,.1);border:1px solid rgba(79,156,249,.2);color:var(--accent);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600; }
+  .empty-state { grid-column:1/-1;text-align:center;padding:80px 40px; }
+  .empty-state .empty-icon { font-size:64px;margin-bottom:20px;opacity:.5; }
+  .empty-state h3 { font-size:22px;font-weight:700;color:var(--text2);margin-bottom:8px; }
+  .empty-state p { font-size:15px;color:var(--text3); }
+
+  /* ── CLASS SCREEN ── */
+  .class-header { background:var(--surface);border-bottom:1px solid var(--border);padding:20px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100; }
+  .class-header-title { flex:1;font-size:24px;font-weight:800; }
+  .activities-tabs { display:flex;padding:16px 28px 0;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none; }
+  .activities-tabs::-webkit-scrollbar { display:none; }
+  .activity-tab { padding:12px 20px;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:8px; }
+  .activity-tab.active { color:var(--accent);border-bottom-color:var(--accent); }
+  .btn-del-act { background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:2px;border-radius:4px;transition:color .2s; }
+  .btn-del-act:hover { color:var(--red); }
+
+  /* ── LEVEL COLUMNS ── */
+  .levels-area { flex:1;overflow-y:auto;overflow-x:auto;padding:24px 28px;display:flex;flex-direction:column; }
+  .levels-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:14px;flex:1; }
+  .level-col { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;min-height:0; }
+  .level-col-header { padding:14px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:inherit; }
+  .level-badge { width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0; }
+  .lvl-1 .level-badge{background:rgba(96,165,250,.15);color:var(--lvl1);}
+  .lvl-2 .level-badge{background:rgba(52,211,153,.15);color:var(--lvl2);}
+  .lvl-3 .level-badge{background:rgba(251,191,36,.15);color:var(--lvl3);}
+  .lvl-4 .level-badge{background:rgba(251,146,60,.15);color:var(--lvl4);}
+  .lvl-5 .level-badge{background:rgba(244,114,182,.15);color:var(--lvl5);}
+  .lvl-speed .level-badge{background:rgba(79,156,249,.15);color:var(--accent);}
+  .level-col-title { font-size:14px;font-weight:700; }
+  .lvl-1 .level-col-title{color:var(--lvl1);}
+  .lvl-2 .level-col-title{color:var(--lvl2);}
+  .lvl-3 .level-col-title{color:var(--lvl3);}
+  .lvl-4 .level-col-title{color:var(--lvl4);}
+  .lvl-5 .level-col-title{color:var(--lvl5);}
+  .lvl-speed .level-col-title{color:var(--accent);}
+  .level-count { margin-left:auto;background:var(--surface3);border-radius:10px;padding:2px 8px;font-size:12px;font-weight:700;color:var(--text2); }
+  .level-col-body { flex:1;padding:10px;display:flex;flex-direction:column;gap:7px;overflow-y:auto;min-height:0; }
+
+  .student-chip { background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;user-select:none; }
+  .student-chip:active { transform:scale(.97); }
+  .student-chip:hover { border-color:rgba(255,255,255,.15); }
+  .student-chip.absent { text-decoration:line-through;color:var(--text3);background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.04); }
+  .absent-dot { width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;display:none; }
+  .student-chip.absent .absent-dot { display:block; }
+  .student-initials { width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0; }
+  .lvl-1 .student-initials{background:rgba(96,165,250,.15);color:var(--lvl1);}
+  .lvl-2 .student-initials{background:rgba(52,211,153,.15);color:var(--lvl2);}
+  .lvl-3 .student-initials{background:rgba(251,191,36,.15);color:var(--lvl3);}
+  .lvl-4 .student-initials{background:rgba(251,146,60,.15);color:var(--lvl4);}
+  .lvl-5 .student-initials{background:rgba(244,114,182,.15);color:var(--lvl5);}
+  .spd-initials{background:rgba(79,156,249,.15);color:var(--accent);}
+  .speed-badge { margin-left:auto;font-family:'Fira Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);background:rgba(79,156,249,.1);border:1px solid rgba(79,156,249,.2);border-radius:6px;padding:2px 8px;white-space:nowrap; }
+  .speed-rank { font-size:11px;color:var(--text3);font-weight:700;font-family:'Fira Mono',monospace;min-width:22px;text-align:center; }
+
+  .btn-add-student { background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;text-align:center;transition:all .2s;margin-top:4px; }
+  .btn-add-student:active { background:rgba(255,255,255,.08); }
+
+  .bottom-bar { background:var(--surface);border-top:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between; }
+  .bottom-stats { display:flex;gap:20px; }
+  .bottom-stat { display:flex;flex-direction:column; }
+  .bottom-stat-val { font-size:20px;font-weight:800;color:var(--accent); }
+  .bottom-stat-label { font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:1px; }
+
+  .no-activity { display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:80px;text-align:center;gap:16px;color:var(--text3); }
+  .no-activity-icon { font-size:60px;opacity:.4; }
+  .no-activity h3 { font-size:20px;font-weight:700;color:var(--text2); }
+
+  /* ── MODALS ── */
+  .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px; }
+  .modal-overlay.active { display:flex; }
+  .modal { background:var(--surface);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:modalIn .25s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto; }
+  .modal-lg { max-width:760px; }
+  @keyframes modalIn { from{transform:scale(.88) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+  .modal-title { font-size:22px;font-weight:800;margin-bottom:24px;display:flex;align-items:center;gap:10px; }
+  .modal-title .icon { font-size:26px; }
+  .form-group { margin-bottom:18px; }
+  .form-label { font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block; }
+  .form-input { width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:var(--text);outline:none;transition:border-color .2s; }
+  .form-input:focus { border-color:var(--accent); }
+  .modal-actions { display:flex;gap:10px;margin-top:24px; }
+
+  /* Activity picker */
+  .activity-picker { display:grid;grid-template-columns:repeat(4,1fr);gap:10px; }
+  .act-option { background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px 6px;cursor:pointer;transition:all .2s;text-align:center; }
+  .act-option:hover { border-color:rgba(79,156,249,.4); }
+  .act-option.selected { border-color:var(--accent);background:rgba(79,156,249,.1); }
+  .act-option-icon { font-size:26px;margin-bottom:6px; }
+  .act-option-name { font-size:12px;font-weight:700;color:var(--text2);line-height:1.2; }
+  .act-option.selected .act-option-name { color:var(--accent); }
+  .act-badge { margin-top:5px;font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:4px;display:inline-block; }
+  .badge-speed { background:rgba(79,156,249,.15);color:var(--accent); }
+  .badge-level { background:rgba(167,139,250,.15);color:var(--accent2); }
+
+  /* Level selector */
+  .level-selector { display:flex;gap:8px; }
+  .level-btn { flex:1;padding:12px 6px;border-radius:var(--radius-sm);border:2px solid transparent;background:var(--surface2);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;color:var(--text2); }
+  .level-btn.sel-1{border-color:var(--lvl1);background:rgba(96,165,250,.15);color:var(--lvl1);}
+  .level-btn.sel-2{border-color:var(--lvl2);background:rgba(52,211,153,.15);color:var(--lvl2);}
+  .level-btn.sel-3{border-color:var(--lvl3);background:rgba(251,191,36,.15);color:var(--lvl3);}
+  .level-btn.sel-4{border-color:var(--lvl4);background:rgba(251,146,60,.15);color:var(--lvl4);}
+  .level-btn.sel-5{border-color:var(--lvl5);background:rgba(244,114,182,.15);color:var(--lvl5);}
+
+  /* Speed input */
+  .speed-input-row { display:flex;align-items:center;gap:10px; }
+  .speed-unit { font-size:16px;font-weight:700;color:var(--accent);white-space:nowrap; }
+
+  /* Team builder */
+  .team-options { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px; }
+  .num-input-group { background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;overflow:hidden; }
+  .num-btn { background:none;border:none;color:var(--accent);font-size:22px;font-weight:700;padding:10px 16px;cursor:pointer;transition:background .2s; }
+  .num-btn:active { background:rgba(79,156,249,.1); }
+  .num-val { flex:1;text-align:center;font-size:20px;font-weight:800;color:var(--text);font-family:'Fira Mono',monospace; }
+  .toggle-row { display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:12px;cursor:pointer;border:1px solid var(--border);transition:border-color .2s; }
+  .toggle-row.on { border-color:var(--accent); }
+  .toggle-label { font-size:14px;font-weight:600;color:var(--text); }
+  .toggle-sub { font-size:12px;color:var(--text3);margin-top:2px; }
+  .toggle-switch { width:46px;height:26px;border-radius:13px;background:var(--surface3);position:relative;transition:background .2s;flex-shrink:0; }
+  .toggle-switch.on { background:var(--accent); }
+  .toggle-switch::after { content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3); }
+  .toggle-switch.on::after { left:23px; }
+  .type-selector { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px; }
+  .type-option { background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius-sm);padding:16px 14px;cursor:pointer;transition:all .2s;text-align:center; }
+  .type-option.selected { border-color:var(--accent2);background:rgba(167,139,250,.1); }
+  .type-option-icon { font-size:28px;margin-bottom:8px; }
+  .type-option-name { font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px; }
+  .type-option-desc { font-size:11px;color:var(--text3);line-height:1.4; }
+  .info-row { background:rgba(79,156,249,.07);border:1px solid rgba(79,156,249,.15);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5; }
+  .warn-box { background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--yellow);margin-bottom:14px; }
+
+  /* ── TEAMS RESULT ── */
+  .teams-header { background:var(--surface);border-bottom:1px solid var(--border);padding:20px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100; }
+  .teams-title { flex:1;font-size:24px;font-weight:800; }
+  .teams-meta { display:flex;align-items:center;gap:12px; }
+  .teams-meta-pill { background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--text2); }
+  .teams-grid-container { flex:1;overflow:auto;padding:24px 28px; }
+  .teams-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px; }
+  .team-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
+  .team-card-header { padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px; }
+  .team-stripe { width:4px;height:28px;border-radius:2px; }
+  .team-number { font-size:15px;font-weight:800;color:var(--text); }
+  .team-avg { margin-left:auto;font-size:13px;font-weight:700;font-family:'Fira Mono',monospace;padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.07); }
+  .team-card-body { padding:12px;display:flex;flex-direction:column;gap:6px; }
+  .team-student { padding:8px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px; }
+  .lvl-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+  .team-student.sub-player { opacity:.6;font-style:italic;border:1px dashed var(--border); }
+  .sub-label { font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-left:auto; }
+  .separator { height:1px;background:var(--border);margin:4px 0; }
+
+
+  /* ── LONG PRESS FEEDBACK ── */
+  .student-chip { position: relative; }
+  .student-chip.pressing { transform: scale(.94); border-color: var(--accent2) !important; background: rgba(167,139,250,.12) !important; transition: transform .15s, border-color .15s; }
+
+  /* ── EDIT MODAL ── */
+  .edit-hint { font-size:12px;color:var(--text3);text-align:center;margin-top:-10px;margin-bottom:16px; }
+  .edit-actions-row { display:flex;gap:10px;margin-top:24px; }
+  .btn-delete-student { background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--red);border-radius:var(--radius-sm);padding:13px 18px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s; }
+  .btn-delete-student:active { background:rgba(248,113,113,.25); }
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:10px;}
+
+@keyframes toastIn  { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+@keyframes toastOut { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(10px)} }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home-screen" class="screen active">
+  <div class="app-header">
+    <div class="app-title">
+      <div class="app-logo">🏃</div>
+      <div>
+        <h1>Équipes EPS</h1>
+        <small>Gestion des classes &amp; équipes</small>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn btn-ghost" style="padding:10px 14px;font-size:13px;" onclick="exportData()" title="Exporter les données">💾 Exporter</button>
+      <label class="btn btn-ghost" style="padding:10px 14px;font-size:13px;cursor:pointer;" title="Importer les données">
+        📂 Importer<input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
+      </label>
+      <button class="btn btn-blue" style="padding:12px 22px;font-size:15px;" onclick="openAddClassModal()">＋ Nouvelle classe</button>
+    </div>
+  </div>
+  <div class="classes-container">
+    <div class="classes-grid" id="classes-grid"></div>
+  </div>
+</div>
+
+<!-- CLASS -->
+<div id="class-screen" class="screen">
+  <div class="class-header">
+    <button class="btn btn-ghost" onclick="goHome()">← Accueil</button>
+    <div class="class-header-title" id="class-header-title"></div>
+    <button class="btn btn-blue" onclick="openAddActivityModal()">＋ Activité</button>
+  </div>
+  <div class="activities-tabs" id="activities-tabs"></div>
+  <div id="class-content" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;"></div>
+</div>
+
+<!-- TEAMS -->
+<div id="teams-screen" class="screen">
+  <div class="teams-header">
+    <button class="btn btn-ghost" onclick="goToClass()">← Retour</button>
+    <div class="teams-title" id="teams-screen-title">Équipes constituées</div>
+    <div class="teams-meta">
+      <span class="teams-meta-pill" id="teams-type-pill"></span>
+      <button class="btn btn-ghost" onclick="regenerateTeams()">🔀 Mélanger</button>
+    </div>
+  </div>
+  <div class="teams-grid-container"><div class="teams-grid" id="teams-grid"></div></div>
+</div>
+
+<!-- MODAL: Add Class -->
+<div class="modal-overlay" id="modal-add-class">
+  <div class="modal">
+    <div class="modal-title"><span class="icon">🏫</span>Nouvelle classe</div>
+    <div class="form-group">
+      <label class="form-label">Nom de la classe</label>
+      <input class="form-input" id="input-class-name" type="text" placeholder="Ex : 5ème A, Terminale…" maxlength="30">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-add-class')">Annuler</button>
+      <button class="btn-confirm" onclick="confirmAddClass()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Pick Activity -->
+<div class="modal-overlay" id="modal-add-activity">
+  <div class="modal">
+    <div class="modal-title"><span class="icon">🎯</span>Choisir une activité</div>
+    <div class="form-group">
+      <label class="form-label">Activité</label>
+      <div class="activity-picker" id="activity-picker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-add-activity')">Annuler</button>
+      <button class="btn-confirm" onclick="confirmAddActivity()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Student (level) -->
+<div class="modal-overlay" id="modal-add-student-level">
+  <div class="modal">
+    <div class="modal-title"><span class="icon">👤</span>Ajouter un élève</div>
+    <div class="form-group">
+      <label class="form-label">Prénom</label>
+      <input class="form-input" id="input-student-name-lvl" type="text" placeholder="Prénom" maxlength="25">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Niveau</label>
+      <div class="level-selector">
+        <button class="level-btn" data-level="1" onclick="selectStudentLevel(1)">1<br><small style="font-weight:400;font-size:10px">Débutant</small></button>
+        <button class="level-btn" data-level="2" onclick="selectStudentLevel(2)">2<br><small style="font-weight:400;font-size:10px">Novice</small></button>
+        <button class="level-btn" data-level="3" onclick="selectStudentLevel(3)">3<br><small style="font-weight:400;font-size:10px">Inter.</small></button>
+        <button class="level-btn" data-level="4" onclick="selectStudentLevel(4)">4<br><small style="font-weight:400;font-size:10px">Avancé</small></button>
+        <button class="level-btn" data-level="5" onclick="selectStudentLevel(5)">5<br><small style="font-weight:400;font-size:10px">Expert</small></button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-add-student-level')">Annuler</button>
+      <button class="btn-confirm" onclick="confirmAddStudentLevel()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Student (speed) -->
+<div class="modal-overlay" id="modal-add-student-speed">
+  <div class="modal">
+    <div class="modal-title"><span class="icon">⚡</span>Ajouter un élève</div>
+    <div class="form-group">
+      <label class="form-label">Prénom</label>
+      <input class="form-input" id="input-student-name-spd" type="text" placeholder="Prénom" maxlength="25">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Vitesse</label>
+      <div class="speed-input-row">
+        <input class="form-input" id="input-student-speed" type="number" placeholder="12.5" min="1" max="30" step="0.1" style="font-family:'Fira Mono',monospace;font-size:20px;font-weight:700;text-align:center;">
+        <span class="speed-unit">km/h</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-add-student-speed')">Annuler</button>
+      <button class="btn-confirm" onclick="confirmAddStudentSpeed()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Build Teams -->
+<div class="modal-overlay" id="modal-build-teams">
+  <div class="modal modal-lg">
+    <div class="modal-title"><span class="icon">🏆</span>Constituer les équipes</div>
+    <div class="info-row" id="teams-info-row"></div>
+    <div class="team-options">
+      <div class="form-group">
+        <label class="form-label">Nombre d'équipes</label>
+        <div class="num-input-group">
+          <button class="num-btn" onclick="changeTeamNum('teams',-1)">−</button>
+          <div class="num-val" id="val-teams">2</div>
+          <button class="num-btn" onclick="changeTeamNum('teams',1)">＋</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Élèves par équipe</label>
+        <div class="num-input-group">
+          <button class="num-btn" onclick="changeTeamNum('size',-1)">−</button>
+          <div class="num-val" id="val-size">5</div>
+          <button class="num-btn" onclick="changeTeamNum('size',1)">＋</button>
+        </div>
+      </div>
+    </div>
+    <div class="toggle-row" id="toggle-sub-row" onclick="toggleSub()">
+      <div>
+        <div class="toggle-label">Remplaçant possible</div>
+        <div class="toggle-sub">Inclure un remplaçant par équipe</div>
+      </div>
+      <div class="toggle-switch" id="switch-sub"></div>
+    </div>
+    <label class="form-label" style="margin-bottom:10px;">Type de constitution</label>
+    <div class="type-selector">
+      <div class="type-option selected" id="type-hetero" onclick="selectType('hetero')">
+        <div class="type-option-icon">⚖️</div>
+        <div class="type-option-name">Hétérogène</div>
+        <div class="type-option-desc">Équipes équilibrées · niveaux mixtes · même moyenne</div>
+      </div>
+      <div class="type-option" id="type-niveau" onclick="selectType('niveau')">
+        <div class="type-option-icon">📊</div>
+        <div class="type-option-name">Par niveau</div>
+        <div class="type-option-desc">Forts ensemble / Faibles ensemble · groupes homogènes</div>
+      </div>
+    </div>
+    <div id="team-warning" class="warn-box" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-build-teams')">Annuler</button>
+      <button class="btn-confirm" onclick="confirmBuildTeams()" style="background:linear-gradient(135deg,var(--accent2),#7c3aed);box-shadow:0 4px 16px rgba(167,139,250,.3);">🏆 Constituer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CATALOGUE ──
+const CATALOGUE = [
+  { key:'relais',    name:'Relais',          icon:'🏃', mode:'speed' },
+  { key:'biathlon',  name:'Biathlon',        icon:'🎿', mode:'speed' },
+  { key:'demi-fond', name:'Demi-fond',       icon:'🏁', mode:'speed' },
+  { key:'badminton', name:'Badminton',       icon:'🏸', mode:'level' },
+  { key:'tennis',    name:'Tennis de table', icon:'🏓', mode:'level' },
+  { key:'basket',    name:'Basket',          icon:'🏀', mode:'level' },
+  { key:'ultimate',  name:'Ultimate',        icon:'🥏', mode:'level' },
+  { key:'futsal',    name:'Futsal',          icon:'⚽', mode:'level' },
+];
+
+const catOf   = key => CATALOGUE.find(c => c.key === key);
+const isSpeed = act => { const c = catOf(act.key); return c && c.mode === 'speed'; };
+
+// ── STATE ──
+let state = { classes:[], currentClassId:null, currentActivityId:null };
+let _uid = Date.now();
+const uid = () => (++_uid).toString(36);
+
+function save() { try { localStorage.setItem('eps3', JSON.stringify(state)); } catch(e){} }
+function load() { try { const s=localStorage.getItem('eps3'); if(s) state=JSON.parse(s); } catch(e){} }
+
+// ── NAVIGATION ──
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function goHome()    { showScreen('home-screen'); renderHome(); }
+function goToClass() { showScreen('class-screen'); renderClass(); }
+
+// ── HOME ──
+function renderHome() {
+  const grid = document.getElementById('classes-grid');
+  if (!state.classes.length) {
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">🏃</div><h3>Aucune classe</h3><p>Appuyez sur "Nouvelle classe" pour commencer</p></div>`;
+    return;
+  }
+  grid.innerHTML = state.classes.map(cls => {
+    const n = countStudents(cls), a = cls.activities.length;
+    const tags = cls.activities.slice(0,3).map(act => {
+      const c = catOf(act.key); return `<span class="activity-tag">${c?c.icon:''} ${esc(act.name)}</span>`;
+    }).join('');
+    return `<div class="class-card" onclick="openClass('${cls.id}')">
+      <div class="class-card-header">
+        <div class="class-name">${esc(cls.name)}</div>
+        <button class="btn-danger-sm" onclick="event.stopPropagation();deleteClass('${cls.id}')">🗑</button>
+      </div>
+      <div class="class-stats">
+        <div class="stat-pill"><span>${n}</span> élève${n!==1?'s':''}</div>
+        <div class="stat-pill"><span>${a}</span> activité${a!==1?'s':''}</div>
+      </div>
+      ${a?`<div class="class-activities">${tags}${a>3?`<span class="activity-tag">+${a-3}</span>`:''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function countStudents(cls) {
+  const ids = new Set();
+  cls.activities.forEach(act => {
+    if (isSpeed(act)) (act.students||[]).forEach(s=>ids.add(s.id));
+    else for(let l=1;l<=5;l++) (act.students[l]||[]).forEach(s=>ids.add(s.id));
+  });
+  return ids.size;
+}
+
+// ── CLASS HELPERS ──
+function getClass()    { return state.classes.find(c=>c.id===state.currentClassId); }
+function getActivity() { const cls=getClass(); return cls?cls.activities.find(a=>a.id===state.currentActivityId):null; }
+
+function openAddClassModal() {
+  document.getElementById('input-class-name').value='';
+  openModal('modal-add-class');
+  setTimeout(()=>document.getElementById('input-class-name').focus(),100);
+}
+function confirmAddClass() {
+  const name=document.getElementById('input-class-name').value.trim();
+  if (!name) return shake('input-class-name');
+  state.classes.push({id:uid(),name,activities:[]});
+  save(); closeModal('modal-add-class'); renderHome();
+}
+function deleteClass(id) {
+  confirmDialog('Supprimer cette classe ?', 'Toutes les activités et élèves seront perdus.', () => {
+    state.classes=state.classes.filter(c=>c.id!==id); save(); renderHome();
+  });
+}
+
+function openClass(id) {
+  state.currentClassId=id;
+  const cls=getClass();
+  state.currentActivityId=cls.activities.length?cls.activities[0].id:null;
+  showScreen('class-screen'); renderClass();
+}
+function renderClass() {
+  const cls=getClass(); if (!cls) return;
+  document.getElementById('class-header-title').textContent=cls.name;
+  renderTabs(); renderContent();
+}
+function renderTabs() {
+  const cls=getClass();
+  document.getElementById('activities-tabs').innerHTML=cls.activities.map(act=>{
+    const c=catOf(act.key);
+    return `<div class="activity-tab ${act.id===state.currentActivityId?'active':''}" onclick="switchActivity('${act.id}')">
+      ${c?c.icon:''} ${esc(act.name)}
+      <button class="btn-del-act" onclick="event.stopPropagation();deleteActivity('${act.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+function switchActivity(id) { state.currentActivityId=id; renderTabs(); renderContent(); }
+
+// ── ACTIVITY PICKER ──
+let _selActKey = null;
+
+function openAddActivityModal() {
+  _selActKey=null;
+  const usedKeys=(getClass().activities||[]).map(a=>a.key);
+  document.getElementById('activity-picker').innerHTML=CATALOGUE.map(c=>{
+    const used=usedKeys.includes(c.key);
+    const badge=c.mode==='speed'
+      ?`<span class="act-badge badge-speed">Vitesse</span>`
+      :`<span class="act-badge badge-level">Niveaux</span>`;
+    return `<div class="act-option ${used?'':''}${used?'" style="opacity:.35;cursor:not-allowed;"':'" '}id="aopt-${c.key}" onclick="${used?'':'selectAct(\''+c.key+'\')'}")">
+      <div class="act-option-icon">${c.icon}</div>
+      <div class="act-option-name">${c.name}</div>${badge}
+    </div>`;
+  }).join('');
+  openModal('modal-add-activity');
+}
+function selectAct(key) {
+  _selActKey=key;
+  document.querySelectorAll('.act-option').forEach(el=>el.classList.remove('selected'));
+  const el=document.getElementById('aopt-'+key); if(el) el.classList.add('selected');
+}
+function confirmAddActivity() {
+  if (!_selActKey) return;
+  const c=catOf(_selActKey); if (!c) return;
+  const act={
+    id:uid(), key:c.key, name:c.name,
+    students: c.mode==='speed' ? [] : {1:[],2:[],3:[],4:[],5:[]}
+  };
+  const cls=getClass(); cls.activities.push(act); state.currentActivityId=act.id;
+  save(); closeModal('modal-add-activity'); renderClass();
+}
+function deleteActivity(id) {
+  confirmDialog('Supprimer cette activité ?', 'Tous les élèves de cette activité seront perdus.', () => {
+    const cls=getClass(); cls.activities=cls.activities.filter(a=>a.id!==id);
+    state.currentActivityId=cls.activities.length?cls.activities[0].id:null;
+    save(); renderClass();
+  });
+}
+
+// ── RENDER CONTENT ──
+function renderContent() {
+  const content=document.getElementById('class-content');
+  const act=getActivity();
+  if (!state.currentActivityId||!act) {
+    content.innerHTML=`<div class="no-activity"><div class="no-activity-icon">🎯</div><h3>Aucune activité</h3><p>Ajoutez une activité ci-dessus</p></div>`;
+    return;
+  }
+  isSpeed(act) ? renderSpeedContent(act,content) : renderLevelContent(act,content);
+  // Attach long-press to all chips
+  setTimeout(() => {
+    document.querySelectorAll('.student-chip[data-sid]').forEach(el => {
+      const mode = el.dataset.mode;
+      const actId = el.dataset.act;
+      const sid = el.dataset.sid;
+      const lvl = parseInt(el.dataset.lvl) || 0;
+      attachLongPress(
+        el,
+        () => { // tap = toggle absent
+          if (mode === 'speed') toggleAbsentSpd(actId, sid);
+          else toggleAbsentLvl(actId, lvl, sid);
+        },
+        () => { // long press = edit
+          openEditStudent(mode, actId, sid, lvl);
+        }
+      );
+    });
+  }, 0);
+}
+
+// ── SPEED ──
+function renderSpeedContent(act, content) {
+  const all=(act.students||[]);
+  const sorted=[...all].sort((a,b)=>b.speed-a.speed);
+  const present=sorted.filter(s=>!s.absent);
+  const absentCount=sorted.filter(s=>s.absent).length;
+  const avgSpd=present.length?(present.reduce((s,m)=>s+m.speed,0)/present.length).toFixed(1):'-';
+
+  let rank=0;
+  const chips=sorted.map(s=>{
+    if (!s.absent) rank++;
+    const init=s.name.substring(0,2).toUpperCase();
+    const cid=`chip-${s.id}`;
+    return `<div class="student-chip ${s.absent?'absent':''}" id="${cid}" data-act="${act.id}" data-sid="${s.id}" data-mode="speed">
+      <div class="absent-dot"></div>
+      ${!s.absent?`<span class="speed-rank">#${rank}</span>`:''}
+      <div class="student-initials spd-initials">${esc(init)}</div>
+      <span style="flex:1">${esc(s.name)}</span>
+      <span class="speed-badge">${s.speed} km/h</span>
+    </div>`;
+  }).join('');
+
+  content.innerHTML=`
+    <div class="levels-area">
+      <div class="level-col lvl-speed" style="min-height:0;">
+        <div class="level-col-header">
+          <div class="level-badge">⚡</div>
+          <div class="level-col-title">Classement par vitesse</div>
+          <div class="level-count">${present.length} présent${present.length!==1?'s':''}</div>
+        </div>
+        <div class="level-col-body">
+          ${chips}
+          <button class="btn-add-student" onclick="openAddStudentSpd()">＋ Ajouter un élève</button>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-bar">
+      <div class="bottom-stats">
+        <div class="bottom-stat"><div class="bottom-stat-val">${present.length}</div><div class="bottom-stat-label">Présents</div></div>
+        <div class="bottom-stat"><div class="bottom-stat-val">${absentCount}</div><div class="bottom-stat-label">Absents</div></div>
+        <div class="bottom-stat"><div class="bottom-stat-val">${avgSpd}</div><div class="bottom-stat-label">Moy. km/h</div></div>
+      </div>
+      <button class="btn btn-purple" style="padding:14px 28px;font-size:16px;" onclick="openBuildTeamsModal()">🏆 Constituer les équipes</button>
+    </div>`;
+}
+
+// ── LEVEL ──
+function renderLevelContent(act, content) {
+  const LVL=['','Niveau 1','Niveau 2','Niveau 3','Niveau 4','Niveau 5'];
+  let present=0, pts=0, absent=0;
+  for(let l=1;l<=5;l++) (act.students[l]||[]).forEach(s=>{ s.absent?absent++:(present++,pts+=l); });
+  const avg=present?(pts/present).toFixed(2):'-';
+
+  const cols=[1,2,3,4,5].map(l=>{
+    const sts=act.students[l]||[];
+    const chips=sts.map(s=>{
+      const cid=`chip-${s.id}`;
+      return `<div class="student-chip ${s.absent?'absent':''}" id="${cid}" data-act="${act.id}" data-lvl="${l}" data-sid="${s.id}" data-mode="level">
+        <div class="absent-dot"></div>
+        <div class="student-initials">${esc(s.name.substring(0,2).toUpperCase())}</div>
+        ${esc(s.name)}
+      </div>`;
+    }).join('');
+    return `<div class="level-col lvl-${l}">
+      <div class="level-col-header">
+        <div class="level-badge">${l}</div>
+        <div class="level-col-title">${LVL[l]}</div>
+        <div class="level-count">${sts.length}</div>
+      </div>
+      <div class="level-col-body">
+        ${chips}
+        <button class="btn-add-student" onclick="openAddStudentLvl(${l})">＋ Ajouter</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  content.innerHTML=`
+    <div class="levels-area"><div class="levels-grid">${cols}</div></div>
+    <div class="bottom-bar">
+      <div class="bottom-stats">
+        <div class="bottom-stat"><div class="bottom-stat-val">${present}</div><div class="bottom-stat-label">Présents</div></div>
+        <div class="bottom-stat"><div class="bottom-stat-val">${absent}</div><div class="bottom-stat-label">Absents</div></div>
+        <div class="bottom-stat"><div class="bottom-stat-val">${avg}</div><div class="bottom-stat-label">Niv. moyen</div></div>
+      </div>
+      <button class="btn btn-purple" style="padding:14px 28px;font-size:16px;" onclick="openBuildTeamsModal()">🏆 Constituer les équipes</button>
+    </div>`;
+}
+
+// ── ADD STUDENT: LEVEL ──
+let _selLvl=0;
+function openAddStudentLvl(l) {
+  _selLvl=l;
+  document.getElementById('input-student-name-lvl').value='';
+  document.querySelectorAll('.level-btn').forEach(b=>b.className='level-btn');
+  selectStudentLevel(l);
+  openModal('modal-add-student-level');
+  setTimeout(()=>document.getElementById('input-student-name-lvl').focus(),100);
+}
+function selectStudentLevel(l) {
+  _selLvl=l;
+  document.querySelectorAll('.level-btn').forEach(b=>{ const v=parseInt(b.dataset.level); b.className='level-btn'+(v===l?` sel-${l}`:''); });
+}
+function confirmAddStudentLevel() {
+  const name=document.getElementById('input-student-name-lvl').value.trim();
+  if (!name) return shake('input-student-name-lvl');
+  if (!_selLvl) return;
+  const act=getActivity();
+  if (!act.students[_selLvl]) act.students[_selLvl]=[];
+  act.students[_selLvl].push({id:uid(),name,absent:false});
+  save(); closeModal('modal-add-student-level'); renderContent();
+}
+function toggleAbsentLvl(actId,l,sid) {
+  const act=getClass().activities.find(a=>a.id===actId);
+  const s=act.students[l].find(s=>s.id===sid); s.absent=!s.absent;
+  save(); renderContent();
+}
+
+// ── ADD STUDENT: SPEED ──
+function openAddStudentSpd() {
+  document.getElementById('input-student-name-spd').value='';
+  document.getElementById('input-student-speed').value='';
+  openModal('modal-add-student-speed');
+  setTimeout(()=>document.getElementById('input-student-name-spd').focus(),100);
+}
+function confirmAddStudentSpeed() {
+  const name=document.getElementById('input-student-name-spd').value.trim();
+  const speed=parseFloat(document.getElementById('input-student-speed').value);
+  if (!name) return shake('input-student-name-spd');
+  if (isNaN(speed)||speed<=0) return shake('input-student-speed');
+  const act=getActivity();
+  if (!act.students) act.students=[];
+  act.students.push({id:uid(),name,speed,absent:false});
+  save(); closeModal('modal-add-student-speed'); renderContent();
+}
+function toggleAbsentSpd(actId,sid) {
+  const act=getClass().activities.find(a=>a.id===actId);
+  const s=act.students.find(s=>s.id===sid); s.absent=!s.absent;
+  save(); renderContent();
+}
+
+// ── TEAM BUILDER ──
+let teamParams={numTeams:2,teamSize:5,withSub:false,type:'hetero'};
+
+function getPool() {
+  const act=getActivity(); if (!act) return [];
+  if (isSpeed(act)) {
+    return (act.students||[]).filter(s=>!s.absent).map(s=>({...s,points:s.speed}));
+  }
+  const pool=[];
+  for(let l=1;l<=5;l++) (act.students[l]||[]).filter(s=>!s.absent).forEach(s=>pool.push({...s,points:l,level:l}));
+  return pool;
+}
+
+function openBuildTeamsModal() {
+  const act=getActivity(); if (!act) return;
+  const n=getPool().length;
+  teamParams.numTeams=Math.min(Math.max(2,Math.floor(n/5)),8);
+  teamParams.teamSize=Math.max(2,Math.floor(n/teamParams.numTeams));
+  teamParams.withSub=false; teamParams.type='hetero';
+  document.getElementById('type-hetero').classList.add('selected');
+  document.getElementById('type-niveau').classList.remove('selected');
+  updateTeamModal(n); openModal('modal-build-teams');
+}
+
+function updateTeamModal(n) {
+  if (n===undefined) n=getPool().length;
+  document.getElementById('val-teams').textContent=teamParams.numTeams;
+  document.getElementById('val-size').textContent=teamParams.teamSize;
+  document.getElementById('switch-sub').className='toggle-switch'+(teamParams.withSub?' on':'');
+  const needed=teamParams.numTeams*teamParams.teamSize+(teamParams.withSub?teamParams.numTeams:0);
+  const extra=n-needed;
+  document.getElementById('teams-info-row').innerHTML=
+    `👥 <strong>${n}</strong> élèves présents &nbsp;·&nbsp; ${teamParams.numTeams} équipes × ${teamParams.teamSize}${teamParams.withSub?' + 1 rempl.':''} = <strong>${needed}</strong> places`;
+  const warn=document.getElementById('team-warning');
+  if (extra<0){warn.style.display='';warn.textContent=`⚠️ Il manque ${Math.abs(extra)} élève(s).`;}
+  else if (extra>0){warn.style.display='';warn.textContent=`ℹ️ ${extra} élève(s) non attribué(s).`;}
+  else warn.style.display='none';
+}
+
+function changeTeamNum(what,delta) {
+  if (what==='teams') teamParams.numTeams=Math.max(2,Math.min(12,teamParams.numTeams+delta));
+  else teamParams.teamSize=Math.max(1,Math.min(20,teamParams.teamSize+delta));
+  updateTeamModal();
+}
+function toggleSub() { teamParams.withSub=!teamParams.withSub; updateTeamModal(); }
+function selectType(t) {
+  teamParams.type=t;
+  document.getElementById('type-hetero').classList.toggle('selected',t==='hetero');
+  document.getElementById('type-niveau').classList.toggle('selected',t==='niveau');
+}
+function confirmBuildTeams() {
+  const teams=buildTeams(); closeModal('modal-build-teams'); renderTeamsScreen(teams); showScreen('teams-screen');
+}
+function regenerateTeams() { renderTeamsScreen(buildTeams()); }
+
+// ── ALGORITHM ──
+function buildTeams() {
+  let pool=getPool();
+  const {numTeams,teamSize,withSub,type}=teamParams;
+  pool=shuffle(pool); pool.sort((a,b)=>b.points-a.points);
+  const teams=Array.from({length:numTeams},(_,i)=>({id:i+1,members:[],sub:null}));
+
+  if (type==='hetero') {
+    const filled=pool.slice(0,numTeams*teamSize);
+    const subs=withSub?pool.slice(numTeams*teamSize,numTeams*teamSize+numTeams):[];
+    let dir=1,ti=0;
+    filled.forEach(s=>{ teams[ti].members.push(s); ti+=dir; if(ti>=numTeams){ti=numTeams-1;dir=-1;}else if(ti<0){ti=0;dir=1;} });
+    subs.forEach((s,i)=>{if(teams[i])teams[i].sub=s;});
+  } else {
+    const half=Math.floor(pool.length/2);
+    const sc=Math.ceil(numTeams/2);
+    let sp=shuffle(pool.slice(0,half)).sort((a,b)=>b.points-a.points);
+    let wp=shuffle(pool.slice(half)).sort((a,b)=>a.points-b.points);
+    for(let ti=0;ti<sc;ti++){
+      for(let j=0;j<teamSize;j++){const s=sp.shift()||wp.shift();if(s)teams[ti].members.push(s);}
+      if(withSub){const s=sp.shift()||wp.shift();if(s)teams[ti].sub=s;}
+    }
+    for(let ti=sc;ti<numTeams;ti++){
+      for(let j=0;j<teamSize;j++){const s=wp.shift()||sp.shift();if(s)teams[ti].members.push(s);}
+      if(withSub){const s=wp.shift()||sp.shift();if(s)teams[ti].sub=s;}
+    }
+  }
+  return teams;
+}
+
+// ── TEAMS SCREEN ──
+const TCOLORS=['#4f9cf9','#34d399','#fbbf24','#fb923c','#f472b6','#a78bfa','#60a5fa','#6ee7b7','#c084fc','#f97316'];
+const LCOLORS=['','#60a5fa','#34d399','#fbbf24','#fb923c','#f472b6'];
+function spdColor(v){return v>=16?'#f472b6':v>=14?'#fb923c':v>=12?'#fbbf24':v>=10?'#34d399':'#60a5fa';}
+
+function renderTeamsScreen(teams) {
+  const act=getActivity(); const spd=isSpeed(act);
+  document.getElementById('teams-screen-title').textContent=`Équipes — ${act.name}`;
+  document.getElementById('teams-type-pill').textContent=teamParams.type==='hetero'?'⚖️ Hétérogène':'📊 Par niveau';
+
+  document.getElementById('teams-grid').innerHTML=teams.map((team,idx)=>{
+    const color=TCOLORS[idx%TCOLORS.length];
+    const avg=team.members.length?(team.members.reduce((s,m)=>s+m.points,0)/team.members.length).toFixed(1):'-';
+    const avgLabel=spd?`${avg} km/h`:`⌀ ${avg}`;
+
+    const members=team.members.map(m=>{
+      const dc=spd?spdColor(m.points):(LCOLORS[m.level]||'#888');
+      const badge=spd
+        ?`<span style="margin-left:auto;font-size:11px;color:var(--accent);font-family:'Fira Mono',monospace;">${m.speed} km/h</span>`
+        :`<span style="margin-left:auto;font-size:11px;color:var(--text3);font-family:'Fira Mono',monospace;">N${m.level}</span>`;
+      return `<div class="team-student" style="background:${dc}18;">
+        <div class="lvl-dot" style="background:${dc};"></div>${esc(m.name)}${badge}
+      </div>`;
+    }).join('');
+
+    const subLine=team.sub?`<div class="separator"></div>
+      <div class="team-student sub-player">
+        <div class="lvl-dot" style="background:${spd?spdColor(team.sub.points):(LCOLORS[team.sub.level]||'#888')};"></div>
+        ${esc(team.sub.name)}<span class="sub-label">Rempl.</span>
+      </div>`:'';
+
+    return `<div class="team-card">
+      <div class="team-card-header">
+        <div class="team-stripe" style="background:${color};"></div>
+        <div class="team-number">Équipe ${team.id}</div>
+        <div class="team-avg" style="color:${color};">${avgLabel}</div>
+      </div>
+      <div class="team-card-body">${members}${subLine}</div>
+    </div>`;
+  }).join('');
+}
+
+
+// ── LONG PRESS HANDLER ──
+const LONG_PRESS_MS = 500;
+function attachLongPress(el, onTap, onLong) {
+  let timer = null;
+  let fired = false;
+
+  const start = (e) => {
+    fired = false;
+    el.classList.add('pressing');
+    timer = setTimeout(() => {
+      fired = true;
+      el.classList.remove('pressing');
+      onLong(e);
+    }, LONG_PRESS_MS);
+  };
+  const cancel = () => {
+    clearTimeout(timer);
+    el.classList.remove('pressing');
+  };
+  const end = (e) => {
+    clearTimeout(timer);
+    el.classList.remove('pressing');
+    if (!fired) onTap(e);
+  };
+
+  el.addEventListener('touchstart', start, { passive: true });
+  el.addEventListener('touchend', end);
+  el.addEventListener('touchmove', cancel, { passive: true });
+  el.addEventListener('touchcancel', cancel);
+  // mouse fallback for desktop
+  el.addEventListener('mousedown', start);
+  el.addEventListener('mouseup', end);
+  el.addEventListener('mouseleave', cancel);
+}
+
+// ── EDIT STUDENT STATE ──
+let _editCtx = null; // { mode:'level'|'speed', actId, level(if level), studentId }
+let _editSelLevel = 0;
+
+function openEditStudent(mode, actId, studentId, level) {
+  const act = getClass().activities.find(a => a.id === actId);
+  let student;
+  if (mode === 'speed') {
+    student = act.students.find(s => s.id === studentId);
+  } else {
+    student = act.students[level].find(s => s.id === studentId);
+  }
+  if (!student) return;
+
+  _editCtx = { mode, actId, studentId, level };
+
+  document.getElementById('edit-student-name').value = student.name;
+
+  if (mode === 'speed') {
+    document.getElementById('edit-level-group').style.display = 'none';
+    document.getElementById('edit-speed-group').style.display = '';
+    document.getElementById('edit-student-speed').value = student.speed;
+  } else {
+    document.getElementById('edit-level-group').style.display = '';
+    document.getElementById('edit-speed-group').style.display = 'none';
+    _editSelLevel = level;
+    document.querySelectorAll('[data-elevel]').forEach(b => {
+      const v = parseInt(b.dataset.elevel);
+      b.className = 'level-btn' + (v === level ? ` sel-${level}` : '');
+    });
+  }
+
+  openModal('modal-edit-student');
+  setTimeout(() => document.getElementById('edit-student-name').focus(), 100);
+}
+
+function selectEditLevel(l) {
+  _editSelLevel = l;
+  document.querySelectorAll('[data-elevel]').forEach(b => {
+    const v = parseInt(b.dataset.elevel);
+    b.className = 'level-btn' + (v === l ? ` sel-${l}` : '');
+  });
+}
+
+function confirmEditStudent() {
+  const name = document.getElementById('edit-student-name').value.trim();
+  if (!name) return shake('edit-student-name');
+
+  const { mode, actId, studentId, level } = _editCtx;
+  const act = getClass().activities.find(a => a.id === actId);
+
+  if (mode === 'speed') {
+    const speed = parseFloat(document.getElementById('edit-student-speed').value);
+    if (isNaN(speed) || speed <= 0) return shake('edit-student-speed');
+    const s = act.students.find(s => s.id === studentId);
+    s.name = name;
+    s.speed = speed;
+  } else {
+    const oldLevel = level;
+    const newLevel = _editSelLevel;
+    const s = act.students[oldLevel].find(s => s.id === studentId);
+    s.name = name;
+    if (newLevel !== oldLevel) {
+      // Move to new level column
+      act.students[oldLevel] = act.students[oldLevel].filter(s => s.id !== studentId);
+      if (!act.students[newLevel]) act.students[newLevel] = [];
+      act.students[newLevel].push(s);
+    }
+  }
+
+  save();
+  closeModal('modal-edit-student');
+  renderContent();
+}
+
+function deleteCurrentStudent() {
+  const { mode, actId, studentId, level } = _editCtx;
+  confirmDialog('Supprimer cet élève ?', 'Cette action est irréversible.', () => {
+    const act = getClass().activities.find(a => a.id === actId);
+    if (mode === 'speed') {
+      act.students = act.students.filter(s => s.id !== studentId);
+    } else {
+      act.students[level] = act.students[level].filter(s => s.id !== studentId);
+    }
+    save();
+    closeModal('modal-edit-student');
+    renderContent();
+  });
+}
+
+// ── CONFIRM DIALOG ──
+function confirmDialog(title, msg, onOk) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  const btn = document.getElementById('confirm-ok');
+  btn.onclick = () => { closeModal('modal-confirm'); onOk(); };
+  openModal('modal-confirm');
+}
+
+// ── HELPERS ──
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function shake(id){const el=document.getElementById(id);el.style.animation='none';el.offsetHeight;el.style.animation='shake .4s';}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
+document.getElementById('input-class-name').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddClass();});
+document.getElementById('input-student-name-lvl').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddStudentLevel();});
+document.getElementById('input-student-name-spd').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('input-student-speed').focus();});
+document.getElementById('input-student-speed').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddStudentSpeed();});
+
+const ss=document.createElement('style');
+ss.textContent=`@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`;
+document.head.appendChild(ss);
+
+
+// ── EXPORT / IMPORT ──
+function exportData() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `equipes-eps-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ Données exportées !');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.classes) throw new Error('Format invalide');
+      confirmDialog(
+        'Importer les données ?',
+        `Cela remplacera toutes vos données actuelles (${state.classes.length} classe(s)) par les données importées (${imported.classes.length} classe(s)).`,
+        () => {
+          state = imported;
+          save();
+          renderHome();
+          showToast('✅ Données importées avec succès !');
+        }
+      );
+    } catch(err) {
+      showToast('❌ Fichier invalide', true);
+    }
+    // reset input so same file can be re-imported
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ── TOAST NOTIFICATION ──
+function showToast(msg, isError = false) {
+  const existing = document.getElementById('eps-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'eps-toast';
+  toast.textContent = msg;
+  toast.style.cssText = `
+    position:fixed;bottom:40px;left:50%;transform:translateX(-50%);
+    background:${isError ? '#f87171' : '#34d399'};
+    color:${isError ? '#fff' : '#0f1117'};
+    font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;
+    padding:14px 28px;border-radius:40px;
+    box-shadow:0 8px 32px rgba(0,0,0,.4);
+    z-index:9999;white-space:nowrap;
+    animation:toastIn .3s cubic-bezier(.34,1.56,.64,1);
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+load(); renderHome();
+</script>
+
+
+<!-- MODAL: Edit Student -->
+<div class="modal-overlay" id="modal-edit-student">
+  <div class="modal">
+    <div class="modal-title"><span class="icon">✏️</span>Modifier l'élève</div>
+    <p class="edit-hint">Appui long pour modifier · clic simple pour absent/présent</p>
+    <div class="form-group">
+      <label class="form-label">Prénom</label>
+      <input class="form-input" id="edit-student-name" type="text" maxlength="25">
+    </div>
+    <div id="edit-level-group" class="form-group">
+      <label class="form-label">Niveau</label>
+      <div class="level-selector">
+        <button class="level-btn" data-elevel="1" onclick="selectEditLevel(1)">1<br><small style="font-weight:400;font-size:10px">Débutant</small></button>
+        <button class="level-btn" data-elevel="2" onclick="selectEditLevel(2)">2<br><small style="font-weight:400;font-size:10px">Novice</small></button>
+        <button class="level-btn" data-elevel="3" onclick="selectEditLevel(3)">3<br><small style="font-weight:400;font-size:10px">Inter.</small></button>
+        <button class="level-btn" data-elevel="4" onclick="selectEditLevel(4)">4<br><small style="font-weight:400;font-size:10px">Avancé</small></button>
+        <button class="level-btn" data-elevel="5" onclick="selectEditLevel(5)">5<br><small style="font-weight:400;font-size:10px">Expert</small></button>
+      </div>
+    </div>
+    <div id="edit-speed-group" class="form-group" style="display:none;">
+      <label class="form-label">Vitesse</label>
+      <div class="speed-input-row">
+        <input class="form-input" id="edit-student-speed" type="number" min="1" max="30" step="0.1" style="font-family:'Fira Mono',monospace;font-size:20px;font-weight:700;text-align:center;">
+        <span class="speed-unit">km/h</span>
+      </div>
+    </div>
+    <div class="edit-actions-row">
+      <button class="btn-delete-student" onclick="deleteCurrentStudent()">🗑 Supprimer</button>
+      <button class="btn-cancel" onclick="closeModal('modal-edit-student')">Annuler</button>
+      <button class="btn-confirm" style="flex:1.5;" onclick="confirmEditStudent()">✓ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Confirm Delete -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-title" style="font-size:18px;" id="confirm-title">Confirmer</div>
+    <p id="confirm-msg" style="color:var(--text2);font-size:14px;margin-bottom:24px;line-height:1.5;"></p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-confirm')">Annuler</button>
+      <button id="confirm-ok" class="btn-cancel" style="flex:1.5;background:rgba(248,113,113,.15);border-color:rgba(248,113,113,.3);color:var(--red);font-weight:700;">Supprimer</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
